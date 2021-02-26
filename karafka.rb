@@ -18,6 +18,7 @@ APP_LOADER.enable_reloading
   app/consumers
   app/responders
   app/workers
+  app/services
 ].each(&APP_LOADER.method(:push_dir))
 
 APP_LOADER.setup
@@ -58,6 +59,11 @@ class KarafkaApp < Karafka::App
       batch_consuming true
     end
 
+    topic :order_placed do
+      consumer OrderPlacedConsumer
+      batch_consuming true
+    end
+
     # consumer_group :bigger_group do
     #   topic :test do
     #     consumer TestConsumer
@@ -73,6 +79,10 @@ end
 Karafka.monitor.subscribe('app.initialized') do
   # Put here all the things you want to do after the Karafka framework
   # initialization
+end
+
+Mail.defaults do
+   delivery_method :smtp, address: "localhost", port: 1025
 end
 
 KarafkaApp.boot!
